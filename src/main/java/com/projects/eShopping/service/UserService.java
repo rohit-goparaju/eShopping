@@ -46,7 +46,7 @@ public class UserService {
 
 		User savedUser = repo.save(newUser);
 
-		return savedUser != null ? new AddUserResponseDTO(savedUser.getUsername()) : null;
+		return savedUser != null ? new AddUserResponseDTO(savedUser.getUsername(), jwtService.generateToken(savedUser.getUsername())) : null;
 	}
 
 	public List<UserResponseDTO> findAllUsers() {
