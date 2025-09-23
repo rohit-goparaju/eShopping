@@ -11,11 +11,19 @@ import org.springframework.stereotype.Service;
 
 import com.projects.eShopping.dto.AddUserRequestDTO;
 import com.projects.eShopping.dto.AddUserResponseDTO;
+import com.projects.eShopping.dto.ChangePasswordReqDTO;
+import com.projects.eShopping.dto.ResetPasswordReqDTO;
+import com.projects.eShopping.dto.ResetPasswordResDTO;
+import com.projects.eShopping.dto.SecurityDetailsReqDTO;
+import com.projects.eShopping.dto.SecurityDetailsResDTO;
 import com.projects.eShopping.dto.UserLoginRequestDTO;
 import com.projects.eShopping.dto.UserLoginResponseDTO;
 import com.projects.eShopping.dto.UserResponseDTO;
+import com.projects.eShopping.enums.RequestStatus;
 import com.projects.eShopping.model.User;
 import com.projects.eShopping.repo.UserRepo;
+
+import jakarta.validation.Valid;
 
 @Service
 public class UserService {
@@ -24,7 +32,7 @@ public class UserService {
 	private PasswordEncoder encoder;
 	private JWTService jwtService;
 	private AuthenticationManager authManager;
-	
+
 
 	public UserService(UserRepo repo, PasswordEncoder encoder, JWTService jwtService,
 			AuthenticationManager authManager) {
@@ -43,6 +51,8 @@ public class UserService {
 		User newUser = new User();
 		newUser.setUsername(reqDTO.getUsername());
 		newUser.setPassword(encoder.encode(reqDTO.getPassword()));
+		newUser.setSecurityQuestion(reqDTO.getSecurityQuestion().trim().toLowerCase());
+		newUser.setSecurityAnswer(reqDTO.getSecurityAnswer().trim().toLowerCase());
 
 		User savedUser = repo.save(newUser);
 
@@ -64,4 +74,40 @@ public class UserService {
 			return null;
 	}
 
+	public RequestStatus changePassword(@Valid ChangePasswordReqDTO reqDTO) {
+		User savedUser = repo.findByUsername(reqDTO.getUsername());
+
+		if(savedUser != null) {
+			if(encoder.matches(reqDTO.getOldPassword(), savedUser.getPassword())) {
+				if(!encoder.matches(reqDTO.getNewPassword(), savedUser.getPassword())) {
+					savedUser.setPassword(encoder.encode(reqDTO.getNewPassword()));					
+					repo.save(savedUser);
+				}
+				return RequestStatus.SUCCESS;
+			}
+		}
+		return RequestStatus.FAILED;
+	}
+
+	public SecurityDetailsResDTO getSecurityDetails(@Valid SecurityDetailsReqDTO reqDTO) {
+		User savedUser = repo.findByUsername(reqDTO.getUsername());
+		SecurityDetailsResDTO securityDetails = null;
+		if(savedUser != null) {
+			securityDetails = new SecurityDetailsResDTO(savedUser.getSecurityQuestion(), savedUser.getSecurityAnswer());
+		}
+		return securityDetails;
+	}
+
+	public ResetPasswordResDTO resetPassword(@Valid ResetPasswordReqDTO reqDTO) {
+		User savedUser = repo.findByUsername(reqDTO.getUsername());
+		ResetPasswordResDTO resDTO = null;
+		if(savedUser != null) {
+			if(!encoder.matches(reqDTO.getNewPassword(), savedUser.getPassword())) {
+				savedUser.setPassword(encoder.encode(reqDTO.getNewPassword()));
+				repo.save(savedUser);
+			}
+			resDTO = new ResetPasswordResDTO(savedUser.getUsername(), jwtService.generateToken(savedUser.getUsername()));
+		}
+		return resDTO;
+	}
 }

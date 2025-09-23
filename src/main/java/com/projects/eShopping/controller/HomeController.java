@@ -12,9 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.projects.eShopping.dto.AddUserRequestDTO;
 import com.projects.eShopping.dto.AddUserResponseDTO;
+import com.projects.eShopping.dto.ChangePasswordReqDTO;
+import com.projects.eShopping.dto.ResetPasswordReqDTO;
+import com.projects.eShopping.dto.ResetPasswordResDTO;
+import com.projects.eShopping.dto.SecurityDetailsReqDTO;
+import com.projects.eShopping.dto.SecurityDetailsResDTO;
 import com.projects.eShopping.dto.UserLoginRequestDTO;
 import com.projects.eShopping.dto.UserLoginResponseDTO;
 import com.projects.eShopping.dto.UserResponseDTO;
+import com.projects.eShopping.enums.RequestStatus;
 import com.projects.eShopping.service.UserService;
 
 import jakarta.validation.Valid;
@@ -52,4 +58,21 @@ public class HomeController {
 		return resDTO != null ? ResponseEntity.ok(resDTO) : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 	}
 	
+	@PostMapping("/changePassword")
+	public ResponseEntity<RequestStatus> changePassword(@Valid @RequestBody ChangePasswordReqDTO reqDTO){
+		RequestStatus status = userService.changePassword(reqDTO);
+		return status == RequestStatus.SUCCESS ? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
+	}
+	
+	@PostMapping("/forgotPassword/getSecurityDetails")
+	public ResponseEntity<SecurityDetailsResDTO> getSecurityDetails(@Valid @RequestBody SecurityDetailsReqDTO reqDTO){
+		SecurityDetailsResDTO securityDetails = userService.getSecurityDetails(reqDTO);
+		return securityDetails != null? ResponseEntity.ok(securityDetails) : ResponseEntity.badRequest().body(securityDetails);
+	}
+	
+	@PostMapping("/forgotPassword/resetPassword")
+	public ResponseEntity<ResetPasswordResDTO> resetPassword(@Valid @RequestBody ResetPasswordReqDTO reqDTO){
+		ResetPasswordResDTO resDTO = userService.resetPassword(reqDTO);
+		return resDTO != null ? ResponseEntity.ok(resDTO) : ResponseEntity.badRequest().body(resDTO);
+	}
 }
