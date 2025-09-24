@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,7 +60,7 @@ public class HomeController {
 		return resDTO != null ? ResponseEntity.ok(resDTO) : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 	}
 	
-	@PostMapping("/changePassword")
+	@PutMapping("/changePassword")
 	public ResponseEntity<RequestStatus> changePassword(@Valid @RequestBody ChangePasswordReqDTO reqDTO){
 		RequestStatus status = userService.changePassword(reqDTO);
 		return status == RequestStatus.SUCCESS ? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
@@ -70,9 +72,16 @@ public class HomeController {
 		return securityDetails != null? ResponseEntity.ok(securityDetails) : ResponseEntity.badRequest().body(securityDetails);
 	}
 	
-	@PostMapping("/forgotPassword/resetPassword")
+	@PutMapping("/forgotPassword/resetPassword")
 	public ResponseEntity<ResetPasswordResDTO> resetPassword(@Valid @RequestBody ResetPasswordReqDTO reqDTO){
 		ResetPasswordResDTO resDTO = userService.resetPassword(reqDTO);
 		return resDTO != null ? ResponseEntity.ok(resDTO) : ResponseEntity.badRequest().body(resDTO);
 	}
+	
+	@PutMapping("/deleteAccount")
+	public ResponseEntity<RequestStatus> deleteAccount(@Valid @RequestBody SecurityDetailsReqDTO reqDTO){
+		RequestStatus status = userService.deleteAccount(reqDTO);
+		return status == RequestStatus.SUCCESS ? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
+	}
+	
 }

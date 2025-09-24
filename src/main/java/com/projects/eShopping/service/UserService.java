@@ -65,10 +65,15 @@ public class UserService {
 	}
 
 	public UserLoginResponseDTO login(UserLoginRequestDTO loginDTO) {
-		Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword()));
-		if(auth.isAuthenticated()) {
-			User existingUser = repo.findByUsername(loginDTO.getUsername());		
-			return existingUser != null && encoder.matches(loginDTO.getPassword(), existingUser.getPassword()) ? new UserLoginResponseDTO(existingUser.getUsername(), jwtService.generateToken(existingUser.getUsername())) : null;			
+		User savedUser = repo.findByUsername(loginDTO.getUsername());
+		if(savedUser != null) {			
+			Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword()));
+			if(auth.isAuthenticated()) {
+				User existingUser = repo.findByUsername(loginDTO.getUsername());		
+				return existingUser != null && encoder.matches(loginDTO.getPassword(), existingUser.getPassword()) ? new UserLoginResponseDTO(existingUser.getUsername(), jwtService.generateToken(existingUser.getUsername())) : null;			
+			}
+			else
+				return null;
 		}
 		else
 			return null;
@@ -109,5 +114,16 @@ public class UserService {
 			resDTO = new ResetPasswordResDTO(savedUser.getUsername(), jwtService.generateToken(savedUser.getUsername()));
 		}
 		return resDTO;
+	}
+
+	public RequestStatus deleteAccount(@Valid SecurityDetailsReqDTO reqDTO) {
+		User savedUser = repo.findByUsername(reqDTO.getUsername());
+		
+		if(savedUser != null) {
+			repo.delete(savedUser);
+			return RequestStatus.SUCCESS;
+		}
+		
+		return RequestStatus.FAILED;
 	}
 }
