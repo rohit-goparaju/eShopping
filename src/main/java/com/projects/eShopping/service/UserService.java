@@ -1,6 +1,8 @@
 package com.projects.eShopping.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,7 +10,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.projects.eShopping.dto.AddListingReqDTO;
 import com.projects.eShopping.dto.AddUserRequestDTO;
 import com.projects.eShopping.dto.AddUserResponseDTO;
 import com.projects.eShopping.dto.ChangePasswordReqDTO;
@@ -20,9 +24,11 @@ import com.projects.eShopping.dto.UserLoginRequestDTO;
 import com.projects.eShopping.dto.UserLoginResponseDTO;
 import com.projects.eShopping.dto.UserResponseDTO;
 import com.projects.eShopping.enums.RequestStatus;
+import com.projects.eShopping.model.Product;
 import com.projects.eShopping.model.User;
 import com.projects.eShopping.repo.UserRepo;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 @Service
@@ -124,6 +130,31 @@ public class UserService {
 			return RequestStatus.SUCCESS;
 		}
 		
+		return RequestStatus.FAILED;
+	}
+
+	@Transactional
+	public RequestStatus addListing(@Valid AddListingReqDTO reqDTO, MultipartFile productImage) throws IOException {
+		// TODO Auto-generated method stub
+		User savedUser = repo.findByUsername(reqDTO.getSellerUsername());
+		if(savedUser != null) {
+			if(savedUser.getListings() == null) {
+				savedUser.setListings(new LinkedList<>());
+			}
+			Product product = new Product();
+			product.setName(reqDTO.getName().trim().toLowerCase());
+			product.setSeller(savedUser);
+			product.setDescription(reqDTO.getDescription().trim().toLowerCase());
+			product.setPrice(reqDTO.getPrice());
+			byte[] imageBytes = productImage.getBytes();
+			product.setProductImage(imageBytes);
+			
+			savedUser.getListings().add(product);
+			
+			repo.save(savedUser);
+			
+			return RequestStatus.SUCCESS;
+		}
 		return RequestStatus.FAILED;
 	}
 }
