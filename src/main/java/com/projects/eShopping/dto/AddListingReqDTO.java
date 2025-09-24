@@ -12,7 +12,8 @@ public class AddListingReqDTO {
 	@NotNull
 	private String description;
 	@NotNull
-	private BigDecimal price;
+	@Pattern(regexp = "^\\d+(\\.\\d+)?$", message = "should be a currency number format.")
+	private String price;
 	@NotNull
 	@Pattern(regexp = "^[a-z][a-z0-9]{1,9}(?:@eShopping\\.in)$", message = "username must start with an alphabet, can contain only lowercase and numbers, length of the prefix must be between 2 to 10 inclusive, must end with @eShopping.in")
 	private String sellerUsername;
@@ -20,7 +21,8 @@ public class AddListingReqDTO {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public AddListingReqDTO(@NotNull String name, @NotNull String description, @NotNull BigDecimal price,
+	public AddListingReqDTO(@NotNull String name, @NotNull String description,
+			@NotNull @Pattern(regexp = "^\\d+(\\.\\d+)?$", message = "should be a currency number format.") String price,
 			@NotNull @Pattern(regexp = "^[a-z][a-z0-9]{1,9}(?:@eShopping\\.in)$", message = "username must start with an alphabet, can contain only lowercase and numbers, length of the prefix must be between 2 to 10 inclusive, must end with @eShopping.in") String sellerUsername) {
 		super();
 		this.name = name;
@@ -40,10 +42,10 @@ public class AddListingReqDTO {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public BigDecimal getPrice() {
+	public String getPrice() {
 		return price;
 	}
-	public void setPrice(BigDecimal price) {
+	public void setPrice(String price) {
 		this.price = price;
 	}
 	public String getSellerUsername() {

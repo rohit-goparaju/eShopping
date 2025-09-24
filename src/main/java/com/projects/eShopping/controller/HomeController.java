@@ -88,9 +88,9 @@ public class HomeController {
 	}
 	
 	@PostMapping("/addListing")
-	public ResponseEntity<RequestStatus> addListing(@Valid @RequestPart AddListingReqDTO reqDTO, @RequestPart MultipartFile productImage) throws IOException{
+	public ResponseEntity<RequestStatus> addListing(@Valid @RequestPart(name = "productDetails") AddListingReqDTO reqDTO, @RequestPart(name = "productImage") MultipartFile productImage) throws IOException{
 		RequestStatus status = userService.addListing(reqDTO, productImage);
-		return status == RequestStatus.SUCCESS? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
+		return status == RequestStatus.SUCCESS ? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
 	}
 	
 }

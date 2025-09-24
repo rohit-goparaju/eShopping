@@ -1,6 +1,7 @@
 package com.projects.eShopping.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -145,7 +146,7 @@ public class UserService {
 			product.setName(reqDTO.getName().trim().toLowerCase());
 			product.setSeller(savedUser);
 			product.setDescription(reqDTO.getDescription().trim().toLowerCase());
-			product.setPrice(reqDTO.getPrice());
+			product.setPrice(new BigDecimal(reqDTO.getPrice()));
 			byte[] imageBytes = productImage.getBytes();
 			product.setProductImage(imageBytes);
 			
