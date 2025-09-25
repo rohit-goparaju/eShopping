@@ -1,6 +1,7 @@
 package com.projects.eShopping.model;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Product {
@@ -22,25 +22,25 @@ public class Product {
 	private String description;
 	@Column(nullable=false)
 	private BigDecimal price;
-	@ManyToOne(optional = false)
-	private User seller;
-	@ManyToOne
-	private User buyer;
+	@Column(nullable = false)
+	private String sellerUsername;
+	@Column
+	private String buyerUsername;
 	@Lob
 	private byte[] productImage;
 	public Product() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Product(long id, String name, String description, BigDecimal price, User seller, User buyer,
-			byte[] productImage) {
+	public Product(long id, String name, String description, BigDecimal price, String sellerUsername,
+			String buyerUsername, byte[] productImage) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.price = price;
-		this.seller = seller;
-		this.buyer = buyer;
+		this.sellerUsername = sellerUsername;
+		this.buyerUsername = buyerUsername;
 		this.productImage = productImage;
 	}
 	public long getId() {
@@ -67,17 +67,17 @@ public class Product {
 	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
-	public User getSeller() {
-		return seller;
+	public String getSellerUsername() {
+		return sellerUsername;
 	}
-	public void setSeller(User seller) {
-		this.seller = seller;
+	public void setSellerUsername(String sellerUsername) {
+		this.sellerUsername = sellerUsername;
 	}
-	public User getBuyer() {
-		return buyer;
+	public String getBuyerUsername() {
+		return buyerUsername;
 	}
-	public void setBuyer(User buyer) {
-		this.buyer = buyer;
+	public void setBuyerUsername(String buyerUsername) {
+		this.buyerUsername = buyerUsername;
 	}
 	public byte[] getProductImage() {
 		return productImage;
@@ -88,7 +88,7 @@ public class Product {
 	@Override
 	public String toString() {
 		return "Product [id=" + id + ", name=" + name + ", description=" + description + ", price=" + price
-				+ ", seller=" + seller.getUsername() + ", buyer=" + (buyer!=null?buyer.getUsername(): "");
+				+ ", sellerUsername=" + sellerUsername + ", buyerUsername=" + buyerUsername + ", productImage="
+				+ Arrays.toString(productImage) + "]";
 	}
-	
 }

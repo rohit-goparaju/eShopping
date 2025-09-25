@@ -24,9 +24,9 @@ public class User {
 	private String securityQuestion;
 	@Column(nullable=false)
 	private String securityAnswer;
-	@OneToMany(mappedBy = "buyer")
+	@OneToMany
 	private List<Product> cartOrders;
-	@OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Product> listings;
 	
 	public User() {

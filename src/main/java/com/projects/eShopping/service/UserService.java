@@ -17,6 +17,8 @@ import com.projects.eShopping.dto.AddListingReqDTO;
 import com.projects.eShopping.dto.AddUserRequestDTO;
 import com.projects.eShopping.dto.AddUserResponseDTO;
 import com.projects.eShopping.dto.ChangePasswordReqDTO;
+import com.projects.eShopping.dto.DeleteAccountReqDTO;
+import com.projects.eShopping.dto.FindMyListingsReqDTO;
 import com.projects.eShopping.dto.ResetPasswordReqDTO;
 import com.projects.eShopping.dto.ResetPasswordResDTO;
 import com.projects.eShopping.dto.SecurityDetailsReqDTO;
@@ -123,7 +125,7 @@ public class UserService {
 		return resDTO;
 	}
 
-	public RequestStatus deleteAccount(@Valid SecurityDetailsReqDTO reqDTO) {
+	public RequestStatus deleteAccount(@Valid DeleteAccountReqDTO reqDTO) {
 		User savedUser = repo.findByUsername(reqDTO.getUsername());
 		
 		if(savedUser != null) {
@@ -144,7 +146,7 @@ public class UserService {
 			}
 			Product product = new Product();
 			product.setName(reqDTO.getName().trim().toLowerCase());
-			product.setSeller(savedUser);
+			product.setSellerUsername(savedUser.getUsername());
 			product.setDescription(reqDTO.getDescription().trim().toLowerCase());
 			product.setPrice(new BigDecimal(reqDTO.getPrice()));
 			byte[] imageBytes = productImage.getBytes();

@@ -3,6 +3,7 @@ package com.projects.eShopping.controller;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,8 @@ import com.projects.eShopping.dto.AddListingReqDTO;
 import com.projects.eShopping.dto.AddUserRequestDTO;
 import com.projects.eShopping.dto.AddUserResponseDTO;
 import com.projects.eShopping.dto.ChangePasswordReqDTO;
+import com.projects.eShopping.dto.DeleteAccountReqDTO;
+import com.projects.eShopping.dto.FindMyListingsReqDTO;
 import com.projects.eShopping.dto.ResetPasswordReqDTO;
 import com.projects.eShopping.dto.ResetPasswordResDTO;
 import com.projects.eShopping.dto.SecurityDetailsReqDTO;
@@ -26,6 +29,7 @@ import com.projects.eShopping.dto.UserLoginRequestDTO;
 import com.projects.eShopping.dto.UserLoginResponseDTO;
 import com.projects.eShopping.dto.UserResponseDTO;
 import com.projects.eShopping.enums.RequestStatus;
+import com.projects.eShopping.model.Product;
 import com.projects.eShopping.service.UserService;
 
 import jakarta.validation.Valid;
@@ -82,7 +86,7 @@ public class HomeController {
 	}
 	
 	@PutMapping("/deleteAccount")
-	public ResponseEntity<RequestStatus> deleteAccount(@Valid @RequestBody SecurityDetailsReqDTO reqDTO){
+	public ResponseEntity<RequestStatus> deleteAccount(@Valid @RequestBody DeleteAccountReqDTO reqDTO){
 		RequestStatus status = userService.deleteAccount(reqDTO);
 		return status == RequestStatus.SUCCESS ? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
 	}
@@ -92,5 +96,4 @@ public class HomeController {
 		RequestStatus status = userService.addListing(reqDTO, productImage);
 		return status == RequestStatus.SUCCESS ? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
 	}
-	
 }
