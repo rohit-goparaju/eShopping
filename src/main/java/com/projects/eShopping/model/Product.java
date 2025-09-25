@@ -27,13 +27,17 @@ public class Product {
 	@Column
 	private String buyerUsername;
 	@Lob
+	@Column(nullable=false, columnDefinition = "LONGBLOB")
 	private byte[] productImage;
+	@Column(nullable = false)
+	private String productImageType;
 	public Product() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
 	public Product(long id, String name, String description, BigDecimal price, String sellerUsername,
-			String buyerUsername, byte[] productImage) {
+			String buyerUsername, byte[] productImage, String productImageType) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -42,53 +46,81 @@ public class Product {
 		this.sellerUsername = sellerUsername;
 		this.buyerUsername = buyerUsername;
 		this.productImage = productImage;
+		this.productImageType = productImageType;
 	}
+
+	
+	
 	public long getId() {
 		return id;
 	}
+
 	public void setId(long id) {
 		this.id = id;
 	}
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public String getDescription() {
 		return description;
 	}
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
 	public BigDecimal getPrice() {
 		return price;
 	}
+
 	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
+
 	public String getSellerUsername() {
 		return sellerUsername;
 	}
+
 	public void setSellerUsername(String sellerUsername) {
 		this.sellerUsername = sellerUsername;
 	}
+
 	public String getBuyerUsername() {
 		return buyerUsername;
 	}
+
 	public void setBuyerUsername(String buyerUsername) {
 		this.buyerUsername = buyerUsername;
 	}
+
 	public byte[] getProductImage() {
 		return productImage;
 	}
+
 	public void setProductImage(byte[] productImage) {
 		this.productImage = productImage;
 	}
+
+	public String getProductImageType() {
+		return productImageType;
+	}
+
+	public void setProductImageType(String productImageType) {
+		this.productImageType = productImageType;
+	}
+
 	@Override
 	public String toString() {
 		return "Product [id=" + id + ", name=" + name + ", description=" + description + ", price=" + price
 				+ ", sellerUsername=" + sellerUsername + ", buyerUsername=" + buyerUsername + ", productImage="
-				+ Arrays.toString(productImage) + "]";
+				+ Arrays.toString(productImage) + ", productImageType=" + productImageType + "]";
 	}
+
+	
 }

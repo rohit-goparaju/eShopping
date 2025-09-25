@@ -18,7 +18,7 @@ import com.projects.eShopping.dto.AddUserRequestDTO;
 import com.projects.eShopping.dto.AddUserResponseDTO;
 import com.projects.eShopping.dto.ChangePasswordReqDTO;
 import com.projects.eShopping.dto.DeleteAccountReqDTO;
-import com.projects.eShopping.dto.FindMyListingsReqDTO;
+import com.projects.eShopping.dto.RemoveListingReqDTO;
 import com.projects.eShopping.dto.ResetPasswordReqDTO;
 import com.projects.eShopping.dto.ResetPasswordResDTO;
 import com.projects.eShopping.dto.SecurityDetailsReqDTO;
@@ -29,6 +29,7 @@ import com.projects.eShopping.dto.UserResponseDTO;
 import com.projects.eShopping.enums.RequestStatus;
 import com.projects.eShopping.model.Product;
 import com.projects.eShopping.model.User;
+import com.projects.eShopping.repo.ProductRepo;
 import com.projects.eShopping.repo.UserRepo;
 
 import jakarta.transaction.Transactional;
@@ -41,15 +42,16 @@ public class UserService {
 	private PasswordEncoder encoder;
 	private JWTService jwtService;
 	private AuthenticationManager authManager;
+	private ProductRepo productRepo;
 
-
-	public UserService(UserRepo repo, PasswordEncoder encoder, JWTService jwtService,
-			AuthenticationManager authManager) {
+	public UserService(UserRepo repo, PasswordEncoder encoder, JWTService jwtService, AuthenticationManager authManager,
+			ProductRepo productRepo) {
 		super();
 		this.repo = repo;
 		this.encoder = encoder;
 		this.jwtService = jwtService;
 		this.authManager = authManager;
+		this.productRepo = productRepo;
 	}
 
 	public AddUserResponseDTO addUser(AddUserRequestDTO reqDTO) {
@@ -151,12 +153,31 @@ public class UserService {
 			product.setPrice(new BigDecimal(reqDTO.getPrice()));
 			byte[] imageBytes = productImage.getBytes();
 			product.setProductImage(imageBytes);
+			product.setProductImageType(productImage.getContentType());
 			
 			savedUser.getListings().add(product);
 			
 			repo.save(savedUser);
 			
 			return RequestStatus.SUCCESS;
+		}
+		return RequestStatus.FAILED;
+	}
+
+	public RequestStatus removeListing(@Valid RemoveListingReqDTO reqDTO) {
+		User seller = repo.findByUsername(reqDTO.getUsername());
+		if(seller != null) {
+			Product product = productRepo.findById(reqDTO.getProductId()).orElse(null);
+			if(product != null) {
+				if(seller.getListings().remove(product)) {
+					repo.save(seller);
+					return RequestStatus.SUCCESS;
+				}else {
+					return RequestStatus.FAILED;
+				}
+			}else {
+				return RequestStatus.FAILED;
+			}
 		}
 		return RequestStatus.FAILED;
 	}
