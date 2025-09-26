@@ -1,9 +1,8 @@
 package com.projects.eShopping.service;
 
-import java.awt.print.Pageable;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.projects.eShopping.dto.FindMyListingsReqDTO;
@@ -29,7 +28,7 @@ public class ProductService {
 	public Page<Product> findMyListings(FindMyListingsReqDTO reqDTO) {
 		User seller = userRepo.findByUsername(reqDTO.getUsername());
 		if(seller != null)
-			return productRepo.findBySellerUsername(seller.getUsername(), PageRequest.of(reqDTO.getPageNumber(), reqDTO.getSize()));
+			return productRepo.findBySellerUsername(seller.getUsername(), PageRequest.of(reqDTO.getPageNumber(), reqDTO.getSize(), Sort.by("name").ascending()));
 		else
 			return null;
 	}

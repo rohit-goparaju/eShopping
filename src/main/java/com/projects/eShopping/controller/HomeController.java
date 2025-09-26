@@ -19,6 +19,7 @@ import com.projects.eShopping.dto.AddUserRequestDTO;
 import com.projects.eShopping.dto.AddUserResponseDTO;
 import com.projects.eShopping.dto.ChangePasswordReqDTO;
 import com.projects.eShopping.dto.DeleteAccountReqDTO;
+import com.projects.eShopping.dto.EditListingReqDTO;
 import com.projects.eShopping.dto.RemoveListingReqDTO;
 import com.projects.eShopping.dto.ResetPasswordReqDTO;
 import com.projects.eShopping.dto.ResetPasswordResDTO;
@@ -100,6 +101,12 @@ public class HomeController {
 		
 		RequestStatus status = userService.removeListing(reqDTO);
 		
+		return status == RequestStatus.SUCCESS ? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
+	}
+	
+	@PutMapping("/editListing")
+	public ResponseEntity<RequestStatus> editListing(@Valid @RequestPart("productDetails") EditListingReqDTO reqDTO, @RequestPart("productImage") MultipartFile productImage) throws IOException{
+		RequestStatus status = userService.editListing(reqDTO, productImage);
 		return status == RequestStatus.SUCCESS ? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
 	}
 }

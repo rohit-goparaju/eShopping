@@ -1,6 +1,7 @@
 package com.projects.eShopping.model;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -25,9 +26,9 @@ public class User {
 	@Column(nullable=false)
 	private String securityAnswer;
 	@OneToMany
-	private List<Product> cartOrders;
+	private Map<String, Product> cartOrders;
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Product> listings;
+	private Map<String, Product> listings;
 	
 	public User() {
 		super();
@@ -35,7 +36,7 @@ public class User {
 	}
 
 	public User(long id, String username, String password, String securityQuestion, String securityAnswer,
-			List<Product> cartOrders, List<Product> listings) {
+			Map<String, Product> cartOrders, Map<String, Product> listings) {
 		super();
 		this.id = id;
 		this.username = username;
@@ -86,25 +87,27 @@ public class User {
 		this.securityAnswer = securityAnswer;
 	}
 
-	public List<Product> getCartOrders() {
+	public Map<String, Product> getCartOrders() {
 		return cartOrders;
 	}
 
-	public void setCartOrders(List<Product> cartOrders) {
+	public void setCartOrders(Map<String, Product> cartOrders) {
 		this.cartOrders = cartOrders;
 	}
 
-	public List<Product> getListings() {
+	public Map<String, Product> getListings() {
 		return listings;
 	}
 
-	public void setListings(List<Product> listings) {
+	public void setListings(Map<String, Product> listings) {
 		this.listings = listings;
 	}
 
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", username=" + username + ", password=" + password + ", securityQuestion="
-				+ securityQuestion + ", securityAnswer=" + securityAnswer;
+				+ securityQuestion + ", securityAnswer=" + securityAnswer + ", cartOrders=" + cartOrders + ", listings="
+				+ listings + "]";
 	}
+	
 }

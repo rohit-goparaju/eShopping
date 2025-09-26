@@ -3,7 +3,7 @@ package com.projects.eShopping.service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +18,7 @@ import com.projects.eShopping.dto.AddUserRequestDTO;
 import com.projects.eShopping.dto.AddUserResponseDTO;
 import com.projects.eShopping.dto.ChangePasswordReqDTO;
 import com.projects.eShopping.dto.DeleteAccountReqDTO;
+import com.projects.eShopping.dto.EditListingReqDTO;
 import com.projects.eShopping.dto.RemoveListingReqDTO;
 import com.projects.eShopping.dto.ResetPasswordReqDTO;
 import com.projects.eShopping.dto.ResetPasswordResDTO;
@@ -144,18 +145,21 @@ public class UserService {
 		User savedUser = repo.findByUsername(reqDTO.getSellerUsername());
 		if(savedUser != null) {
 			if(savedUser.getListings() == null) {
-				savedUser.setListings(new LinkedList<>());
+				savedUser.setListings(new HashMap<String, Product>());
 			}
 			Product product = new Product();
-			product.setName(reqDTO.getName().trim().toLowerCase());
+			product.setName(reqDTO.getName().trim());
 			product.setSellerUsername(savedUser.getUsername());
-			product.setDescription(reqDTO.getDescription().trim().toLowerCase());
+			product.setDescription(reqDTO.getDescription().trim());
 			product.setPrice(new BigDecimal(reqDTO.getPrice()));
 			byte[] imageBytes = productImage.getBytes();
 			product.setProductImage(imageBytes);
 			product.setProductImageType(productImage.getContentType());
+			product.setProductImageFileName(productImage.getOriginalFilename());
 			
-			savedUser.getListings().add(product);
+			Product savedProduct = productRepo.save(product);
+			
+			savedUser.getListings().put(savedProduct.getProductCode(), savedProduct);
 			
 			repo.save(savedUser);
 			
@@ -169,7 +173,7 @@ public class UserService {
 		if(seller != null) {
 			Product product = productRepo.findById(reqDTO.getProductId()).orElse(null);
 			if(product != null) {
-				if(seller.getListings().remove(product)) {
+				if(seller.getListings().remove(product.getProductCode(), product)) {
 					repo.save(seller);
 					return RequestStatus.SUCCESS;
 				}else {
@@ -180,5 +184,43 @@ public class UserService {
 			}
 		}
 		return RequestStatus.FAILED;
+	}
+
+	@Transactional
+	public RequestStatus editListing(@Valid EditListingReqDTO reqDTO, MultipartFile productImage) throws IOException {
+		User seller = repo.findByUsername(reqDTO.getSellerUsername());	
+		if(seller != null) {
+			Product oldProduct = seller.getListings().get(reqDTO.getProductCode());
+			if(oldProduct != null) {
+				Product changedProduct = new Product();
+				changedProduct.setSellerUsername(reqDTO.getSellerUsername());
+				changedProduct.setBuyerUsername(oldProduct.getBuyerUsername());
+				changedProduct.setPrice(new BigDecimal(reqDTO.getPrice()));
+				changedProduct.setDescription(reqDTO.getDescription().trim());
+				changedProduct.setName(reqDTO.getName().trim());
+				if(productImage != null) {
+					byte[] imageBytes = productImage.getBytes();
+					changedProduct.setProductImage(imageBytes);
+					changedProduct.setProductImageType(productImage.getContentType());
+					changedProduct.setProductImageFileName(productImage.getOriginalFilename());
+				}else {
+					changedProduct.setProductImage(oldProduct.getProductImage());
+					changedProduct.setProductImageType(oldProduct.getProductImageType());
+					changedProduct.setProductImageFileName(oldProduct.getProductImageFileName());
+				}
+				
+				if(seller.getListings().remove(reqDTO.getProductCode(), oldProduct)) {
+					Product updatedProduct = productRepo.save(changedProduct);
+					seller.getListings().put(updatedProduct.getProductCode(), updatedProduct);
+					return RequestStatus.SUCCESS;
+				}else {
+					return RequestStatus.FAILED;
+				}
+			}else {
+				return RequestStatus.FAILED;
+			}
+		}
+		else
+			return RequestStatus.FAILED;
 	}
 }
