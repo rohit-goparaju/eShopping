@@ -1,7 +1,6 @@
 package com.projects.eShopping.model;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.UUID;
 
 import jakarta.persistence.Column;

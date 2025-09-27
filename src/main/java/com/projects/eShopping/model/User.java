@@ -1,6 +1,5 @@
 package com.projects.eShopping.model;
 
-import java.util.List;
 import java.util.Map;
 
 import jakarta.persistence.CascadeType;
@@ -9,6 +8,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -25,9 +27,21 @@ public class User {
 	private String securityQuestion;
 	@Column(nullable=false)
 	private String securityAnswer;
-	@OneToMany
+	@OneToMany(cascade = CascadeType.MERGE)
+	@JoinTable(
+			name = "user_cart_orders",
+			joinColumns = @JoinColumn(name = "user_id"),
+			inverseJoinColumns = @JoinColumn(name = "product_id")
+			)
+	@MapKeyColumn(name="product_code")
 	private Map<String, Product> cartOrders;
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinTable(
+			name = "user_listings",
+			joinColumns = @JoinColumn(name = "user_id"),
+			inverseJoinColumns = @JoinColumn(name = "product_id")
+			)
+	@MapKeyColumn(name="product_code")
 	private Map<String, Product> listings;
 	
 	public User() {

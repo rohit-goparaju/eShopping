@@ -32,4 +32,12 @@ public class ProductService {
 		else
 			return null;
 	}
+
+
+	public Page<Product> findAllListings(int size, int page) {
+		return productRepo.findAll(PageRequest.of(page, size, Sort.by("name")));
+	}
+
+
+	
 }

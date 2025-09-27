@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.projects.eShopping.dto.AddListingReqDTO;
+import com.projects.eShopping.dto.AddToCartReqDTO;
 import com.projects.eShopping.dto.AddUserRequestDTO;
 import com.projects.eShopping.dto.AddUserResponseDTO;
 import com.projects.eShopping.dto.ChangePasswordReqDTO;
@@ -213,6 +214,56 @@ public class UserService {
 					Product updatedProduct = productRepo.save(changedProduct);
 					seller.getListings().put(updatedProduct.getProductCode(), updatedProduct);
 					return RequestStatus.SUCCESS;
+				}else {
+					return RequestStatus.FAILED;
+				}
+			}else {
+				return RequestStatus.FAILED;
+			}
+		}
+		else
+			return RequestStatus.FAILED;
+	}
+
+	public RequestStatus addToCart(AddToCartReqDTO reqDTO) {
+		User buyer = repo.findByUsername(reqDTO.getUsername());
+		if(buyer != null) {
+			Product product = productRepo.getById(reqDTO.getProductId());
+			if(product!=null) {
+				User seller = repo.findByUsername(product.getSellerUsername());
+				if(seller != null) {
+					if(buyer.getCartOrders() == null) {
+						buyer.setCartOrders(new HashMap<String, Product>());
+					}
+					product.setBuyerUsername(buyer.getUsername());
+					buyer.getCartOrders().putIfAbsent(product.getProductCode(), product);
+					repo.save(buyer);
+					return RequestStatus.SUCCESS;
+				}else {
+					return RequestStatus.FAILED;
+				}
+			}else {
+				return RequestStatus.FAILED;
+			}
+		}
+		else
+			return RequestStatus.FAILED;
+	}
+
+	public RequestStatus removeFromCart(AddToCartReqDTO reqDTO) {
+		User buyer = repo.findByUsername(reqDTO.getUsername());
+		if(buyer != null) {
+			Product product = productRepo.getById(reqDTO.getProductId());
+			if(product!=null) {
+				User seller = repo.findByUsername(product.getSellerUsername());
+				if(seller != null) {
+					if(buyer.getCartOrders() == null) {
+						buyer.setCartOrders(new HashMap<String, Product>());
+					}
+					product.setBuyerUsername(null);
+					boolean status = buyer.getCartOrders().remove(product.getProductCode(), product);
+					repo.save(buyer);
+					return status ? RequestStatus.SUCCESS : RequestStatus.FAILED;
 				}else {
 					return RequestStatus.FAILED;
 				}

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.projects.eShopping.dto.AddListingReqDTO;
+import com.projects.eShopping.dto.AddToCartReqDTO;
 import com.projects.eShopping.dto.AddUserRequestDTO;
 import com.projects.eShopping.dto.AddUserResponseDTO;
 import com.projects.eShopping.dto.ChangePasswordReqDTO;
@@ -109,4 +110,17 @@ public class HomeController {
 		RequestStatus status = userService.editListing(reqDTO, productImage);
 		return status == RequestStatus.SUCCESS ? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
 	}
+	
+	@PostMapping("/addToCart")
+	public ResponseEntity<RequestStatus> addToCart(@RequestBody AddToCartReqDTO reqDTO){
+		RequestStatus status = userService.addToCart(reqDTO);
+		return status == RequestStatus.SUCCESS? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
+	}
+	
+	@PutMapping("/removeFromCart")
+	public ResponseEntity<RequestStatus> removeFromCart(@RequestBody AddToCartReqDTO reqDTO){
+		RequestStatus status = userService.removeFromCart(reqDTO);
+		return status == RequestStatus.SUCCESS? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
+	}
+	
 }
