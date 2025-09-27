@@ -1,6 +1,8 @@
 package com.projects.eShopping.repo;
 
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +27,6 @@ public interface ProductRepo extends JpaRepository<Product, Long>{
 			)
 			""")
 	public Page<Product> findSpecificSellerProducts(@Param("sellerUsername") String sellerUsername, @Param("searchTerm") String searchTerm, Pageable pageable);
+
+	public List<Product> findByBuyerUsername(String buyerUsername);
 }

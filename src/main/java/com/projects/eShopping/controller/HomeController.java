@@ -29,6 +29,7 @@ import com.projects.eShopping.dto.SecurityDetailsResDTO;
 import com.projects.eShopping.dto.UserLoginRequestDTO;
 import com.projects.eShopping.dto.UserLoginResponseDTO;
 import com.projects.eShopping.dto.UserResponseDTO;
+import com.projects.eShopping.dto.UsernameOnlyReqDTO;
 import com.projects.eShopping.enums.RequestStatus;
 import com.projects.eShopping.service.UserService;
 
@@ -120,6 +121,12 @@ public class HomeController {
 	@PutMapping("/removeFromCart")
 	public ResponseEntity<RequestStatus> removeFromCart(@RequestBody AddToCartReqDTO reqDTO){
 		RequestStatus status = userService.removeFromCart(reqDTO);
+		return status == RequestStatus.SUCCESS? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
+	}
+	
+	@PutMapping("/emptyCart")
+	public ResponseEntity<RequestStatus> emptyCart(@RequestBody UsernameOnlyReqDTO reqDTO){
+		RequestStatus status = userService.emptyCart(reqDTO);
 		return status == RequestStatus.SUCCESS? ResponseEntity.ok(status) : ResponseEntity.badRequest().body(status);
 	}
 	

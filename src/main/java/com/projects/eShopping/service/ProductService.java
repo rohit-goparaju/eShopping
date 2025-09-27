@@ -1,16 +1,21 @@
 package com.projects.eShopping.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.projects.eShopping.dto.CartOrdersReqDTO;
 import com.projects.eShopping.dto.FindMyListingsReqDTO;
 import com.projects.eShopping.model.Product;
 import com.projects.eShopping.model.User;
 import com.projects.eShopping.repo.ProductRepo;
 import com.projects.eShopping.repo.UserRepo;
+
+import jakarta.validation.Valid;
 
 @Service
 public class ProductService {
@@ -47,6 +52,15 @@ public class ProductService {
 			return productRepo.findAll(pageable);
 		else
 			return productRepo.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
+	}
+
+
+	public List<Product> findMyCartOrders(@Valid CartOrdersReqDTO reqDTO) {
+		User buyer = userRepo.findByUsername(reqDTO.getUsername());
+		if(buyer != null) {
+			return productRepo.findByBuyerUsername(buyer.getUsername());
+		}
+		return null;
 	}
 
 

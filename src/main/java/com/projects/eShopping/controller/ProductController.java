@@ -1,5 +1,7 @@
 package com.projects.eShopping.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.projects.eShopping.dto.CartOrdersReqDTO;
 import com.projects.eShopping.dto.FindMyListingsReqDTO;
 import com.projects.eShopping.model.Product;
 import com.projects.eShopping.service.ProductService;
@@ -36,6 +39,12 @@ public class ProductController {
 	@GetMapping("/findAllListings")
 	public ResponseEntity<Page<Product>> findAllListings(@RequestParam(name = "size", required = true) int size, @RequestParam(name="page", required=true) int page, @RequestParam(name="search", defaultValue = "") String search){
 		return ResponseEntity.ok(productService.findAllListings(size, page, search));	
+	}
+	
+	@PostMapping("/findMyCartOrders")
+	public ResponseEntity<List<Product>> findMyCartOrders(@Valid @RequestBody CartOrdersReqDTO reqDTO){
+		List<Product> myCartOrders = productService.findMyCartOrders(reqDTO);
+		return ResponseEntity.ok(myCartOrders);
 	}
 	
 }

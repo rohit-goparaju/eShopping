@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,6 +29,7 @@ import com.projects.eShopping.dto.SecurityDetailsResDTO;
 import com.projects.eShopping.dto.UserLoginRequestDTO;
 import com.projects.eShopping.dto.UserLoginResponseDTO;
 import com.projects.eShopping.dto.UserResponseDTO;
+import com.projects.eShopping.dto.UsernameOnlyReqDTO;
 import com.projects.eShopping.enums.RequestStatus;
 import com.projects.eShopping.model.Product;
 import com.projects.eShopping.model.User;
@@ -169,11 +171,24 @@ public class UserService {
 		return RequestStatus.FAILED;
 	}
 
+	@Transactional
 	public RequestStatus removeListing(@Valid RemoveListingReqDTO reqDTO) {
 		User seller = repo.findByUsername(reqDTO.getUsername());
 		if(seller != null) {
 			Product product = productRepo.findById(reqDTO.getProductId()).orElse(null);
 			if(product != null) {
+				if(product.getBuyerUsername() != null) {
+					User buyer = repo.findByUsername(product.getBuyerUsername());
+					if(buyer != null) {
+						if(buyer.getCartOrders()!= null) {
+							buyer.getCartOrders().remove(product.getProductCode(), product);							
+							repo.save(buyer);
+						}
+						product.setBuyerUsername(null);
+					}else {
+						product.setBuyerUsername(null);
+					}
+				}
 				if(seller.getListings().remove(product.getProductCode(), product)) {
 					repo.save(seller);
 					return RequestStatus.SUCCESS;
@@ -193,9 +208,10 @@ public class UserService {
 		if(seller != null) {
 			Product oldProduct = seller.getListings().get(reqDTO.getProductCode());
 			if(oldProduct != null) {
+				
 				Product changedProduct = new Product();
+							
 				changedProduct.setSellerUsername(reqDTO.getSellerUsername());
-				changedProduct.setBuyerUsername(oldProduct.getBuyerUsername());
 				changedProduct.setPrice(new BigDecimal(reqDTO.getPrice()));
 				changedProduct.setDescription(reqDTO.getDescription().trim());
 				changedProduct.setName(reqDTO.getName().trim());
@@ -210,9 +226,29 @@ public class UserService {
 					changedProduct.setProductImageFileName(oldProduct.getProductImageFileName());
 				}
 				
+				User buyer = null;
+				
+				if(oldProduct.getBuyerUsername() != null) {
+					buyer = repo.findByUsername(oldProduct.getBuyerUsername());
+					if(buyer != null) {
+						if(buyer.getCartOrders()!=null) {
+							changedProduct.setBuyerUsername(oldProduct.getBuyerUsername());
+							buyer.getCartOrders().remove(oldProduct.getProductCode(), oldProduct);
+						}
+					}else {
+						oldProduct.setBuyerUsername(null);
+					}
+				}
+				
 				if(seller.getListings().remove(reqDTO.getProductCode(), oldProduct)) {
 					Product updatedProduct = productRepo.save(changedProduct);
 					seller.getListings().put(updatedProduct.getProductCode(), updatedProduct);
+					repo.save(seller);
+					if(buyer!=null)
+					{
+						buyer.getCartOrders().put(changedProduct.getProductCode(), changedProduct);
+						repo.save(buyer);
+					}
 					return RequestStatus.SUCCESS;
 				}else {
 					return RequestStatus.FAILED;
@@ -228,7 +264,7 @@ public class UserService {
 	public RequestStatus addToCart(AddToCartReqDTO reqDTO) {
 		User buyer = repo.findByUsername(reqDTO.getUsername());
 		if(buyer != null) {
-			Product product = productRepo.getById(reqDTO.getProductId());
+			Product product = productRepo.getReferenceById(reqDTO.getProductId());
 			if(product!=null) {
 				User seller = repo.findByUsername(product.getSellerUsername());
 				if(seller != null) {
@@ -253,7 +289,7 @@ public class UserService {
 	public RequestStatus removeFromCart(AddToCartReqDTO reqDTO) {
 		User buyer = repo.findByUsername(reqDTO.getUsername());
 		if(buyer != null) {
-			Product product = productRepo.getById(reqDTO.getProductId());
+			Product product = productRepo.getReferenceById(reqDTO.getProductId());
 			if(product!=null) {
 				User seller = repo.findByUsername(product.getSellerUsername());
 				if(seller != null) {
@@ -273,5 +309,18 @@ public class UserService {
 		}
 		else
 			return RequestStatus.FAILED;
+	}
+
+	public RequestStatus emptyCart(UsernameOnlyReqDTO reqDTO) {
+		User buyer = repo.findByUsername(reqDTO.getUsername());
+		if(buyer != null) {
+			if(buyer.getCartOrders()!=null) {
+				buyer.getCartOrders().forEach((productCode,product)->{product.setBuyerUsername(null);});
+				buyer.getCartOrders().clear();
+				repo.save(buyer);
+			}
+			return RequestStatus.SUCCESS;
+		}
+		return RequestStatus.FAILED;
 	}
 }
