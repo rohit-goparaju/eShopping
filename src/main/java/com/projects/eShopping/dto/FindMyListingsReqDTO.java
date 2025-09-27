@@ -12,6 +12,8 @@ public class FindMyListingsReqDTO {
 	private int pageNumber;
 	@NotNull
 	private int size;
+	
+	private String search = "";
 
 	public FindMyListingsReqDTO() {
 		super();
@@ -20,11 +22,12 @@ public class FindMyListingsReqDTO {
 
 	public FindMyListingsReqDTO(
 			@NotNull @Pattern(regexp = "^[a-z][a-z0-9]{1,9}(?:@eShopping\\.in)$", message = "username must start with an alphabet, can contain only lowercase and numbers, length of the prefix must be between 2 to 10 inclusive, must end with @eShopping.in") String username,
-			@NotNull int pageNumber, @NotNull int size) {
+			@NotNull int pageNumber, @NotNull int size, String search) {
 		super();
 		this.username = username;
 		this.pageNumber = pageNumber;
 		this.size = size;
+		this.search = search;
 	}
 
 	public String getUsername() {
@@ -51,9 +54,18 @@ public class FindMyListingsReqDTO {
 		this.size = size;
 	}
 
+	public String getSearch() {
+		return search;
+	}
+
+	public void setSearch(String search) {
+		this.search = search;
+	}
+
 	@Override
 	public String toString() {
-		return "FindMyListingsReqDTO [username=" + username + ", pageNumber=" + pageNumber + ", size=" + size + "]";
+		return "FindMyListingsReqDTO [username=" + username + ", pageNumber=" + pageNumber + ", size=" + size
+				+ ", search=" + search + "]";
 	}
-	
+
 }
