@@ -131,10 +131,31 @@ public class UserService {
 		return resDTO;
 	}
 
+	@Transactional
 	public RequestStatus deleteAccount(@Valid DeleteAccountReqDTO reqDTO) {
 		User savedUser = repo.findByUsername(reqDTO.getUsername());
 		
 		if(savedUser != null) {
+			if(savedUser.getCartOrders() != null) {
+				savedUser.getCartOrders().forEach((productCode, product)->product.setBuyerUsername(null));
+				savedUser.getCartOrders().clear();
+				repo.save(savedUser);
+			}
+			if(savedUser.getListings() != null) {
+				savedUser.getListings().forEach((producCode, product)->{
+					if(product.getBuyerUsername() != null) {
+						User buyer = repo.findByUsername(product.getBuyerUsername());
+						if(buyer != null) {
+							buyer.getCartOrders().remove(product.getProductCode(), product);
+							repo.save(buyer);
+							product.setBuyerUsername(null);
+						}else {
+							product.setBuyerUsername(null);
+						}
+					}
+				});
+			}
+			
 			repo.delete(savedUser);
 			return RequestStatus.SUCCESS;
 		}
